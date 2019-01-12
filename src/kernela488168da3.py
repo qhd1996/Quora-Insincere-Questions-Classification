@@ -30,7 +30,6 @@ def seed_torch(seed=1029):
     os.environ['PYTHONHASHSEED'] = str(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
-    torch.cuda.manual_seed(seed)
     torch.backends.cudnn.deterministic = True
 embed_size = 300 # how big is each word vector
 max_features = 95000 # how many unique words to use (i.e num rows in embedding vector)
@@ -334,18 +333,17 @@ test_preds = np.zeros((len(test_X)))
 
 seed_torch(SEED)
 
-x_test_cuda = torch.tensor(test_X, dtype=torch.long).cuda()
+x_test_cuda = torch.tensor(test_X, dtype=torch.long)
 test = torch.utils.data.TensorDataset(x_test_cuda)
 test_loader = torch.utils.data.DataLoader(test, batch_size=batch_size, shuffle=False)
 
 for i, (train_idx, valid_idx) in enumerate(splits):
-    x_train_fold = torch.tensor(train_X[train_idx], dtype=torch.long).cuda()
-    y_train_fold = torch.tensor(train_y[train_idx, np.newaxis], dtype=torch.float32).cuda()
-    x_val_fold = torch.tensor(train_X[valid_idx], dtype=torch.long).cuda()
-    y_val_fold = torch.tensor(train_y[valid_idx, np.newaxis], dtype=torch.float32).cuda()
+    x_train_fold = torch.tensor(train_X[train_idx], dtype=torch.long)
+    y_train_fold = torch.tensor(train_y[train_idx, np.newaxis], dtype=torch.float32)
+    x_val_fold = torch.tensor(train_X[valid_idx], dtype=torch.long)
+    y_val_fold = torch.tensor(train_y[valid_idx, np.newaxis], dtype=torch.float32)
     
     model = NeuralNet()
-    model.cuda()
     
     loss_fn = torch.nn.BCEWithLogitsLoss(reduction="sum")
     optimizer = torch.optim.Adam(model.parameters())
